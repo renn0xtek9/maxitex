@@ -151,21 +151,34 @@ class maxitexparser:
 						
 			for it in range(0, len(self.latexcontent)):
 				file.write(self.latexcontent[it])
-	def SwitchFrom_pmatrix_to_beginmatrix(self):		
+	def SwitchFrom_pmatrix_to_beginmatrix(self):	
+		#\pmatrix{a&b\cr c&d\cr }=\pmatrix{e&f\cr g&h\cr }
+		#\begin{pmatrix}a&b\cr c&d\cr }=\pmatrix{e&f\cr g&h\cr }
 		equationsfiles = [f for f in listdir("./equations") if isfile(join("./equations", f))]
 		print(equationsfiles)
 		for texfile in equationsfiles:
 			print(texfile)
 			with open(join("./equations",texfile)) as f:  #This conserve the \n at en of lines
+				'''Strategy.
+				First we relpace all occure of \pmatrix by a \begin{matrix}
+				Second we parse the conten of each matrix, counting opening and lcosing { } to detectd the \end{pmatrix} and to adapt the newline symbols (cr -> \\)
+				Third we replace \begin{pmatix}{ by \begin{pmatrix}
+				'''
 				content = f.readlines()
 				allinone=' '.join(content)
-				for iter in re.finditer("pmatrix",allinone):
-					index=iter.start()
-					tmp=allinone[:index]+"begin{pmatrix}"+allinone[index+8:]
-					allinone=tmp
-					index=index+14
-					openparanthesis=0     #this track the number of "{" that are open
-					while index<len(allinone):						
+				tmp=re.sub(r'\\pmatrix', '\\\\begin{pmatrix}', allinone)	 
+				allinone=tmp
+				index=0 
+				while index<len(allinone):
+					index=allinone.find("\\begin{pmatrix}",index)   #place  ourselve at the index of next \begin{pmatrix}occurence
+					if index==-1:
+						break
+					index+=15
+					if index>len(allinone):
+						break
+					#Now parse the subcontent of the matrix and adapt new line symbols, and count parantheses
+					openparanthesis=0
+					while index<len(allinone):	
 						if (allinone[index]=='\\' and allinone[index+1:index+3]=="cr"):
 							tmp=allinone[:index]+"\\\\"+allinone[index+3:]
 							allinone=tmp
@@ -173,13 +186,38 @@ class maxitexparser:
 							openparanthesis+=1
 						if (allinone[index]=="}"):
 							openparanthesis-=1
-							if openparanthesis==-1:
+							if openparanthesis==0:
 								tmp=allinone[:index]+"\end{pmatrix}"+allinone[index+1:]
 								allinone=tmp
 								break
-						if (index>=len(allinone)):
-							break
 						index=index+1
+				allinone=re.sub(r'begin{pmatrix}{','begin{pmatrix}',allinone)
+					#sys.exit(1)
+				#Old code 
+				
+				#for iter in re.finditer("pmatrix",allinone):
+					#index=iter.start()
+					#print (index)
+					#tmp=allinone[:index]+"begin{pmatrix}"+allinone[index+8:]
+					#allinone=tmp
+					#index=index+14
+					#openparanthesis=0     #this track the number of "{" that are open
+					#pass
+					#while index<len(allinone):						
+						#if (allinone[index]=='\\' and allinone[index+1:index+3]=="cr"):
+							#tmp=allinone[:index]+"\\\\"+allinone[index+3:]
+							#allinone=tmp
+						#if (allinone[index]=="{"):
+							#openparanthesis+=1
+						#if (allinone[index]=="}"):
+							#openparanthesis-=1
+							#if openparanthesis==-1:
+								#tmp=allinone[:index]+"\end{pmatrix}"+allinone[index+1:]
+								#allinone=tmp
+								#break
+						#if (index>=len(allinone)):
+							#break
+						#index=index+1
 				with codecs.open(join("./equations",texfile), 'w', encoding ='utf_8' ) as file:		#use a instead of w to append
 					file.write(allinone)
 									
