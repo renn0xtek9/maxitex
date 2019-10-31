@@ -192,32 +192,6 @@ class maxitexparser:
 								break
 						index=index+1
 				allinone=re.sub(r'begin{pmatrix}{','begin{pmatrix}',allinone)
-					#sys.exit(1)
-				#Old code 
-				
-				#for iter in re.finditer("pmatrix",allinone):
-					#index=iter.start()
-					#print (index)
-					#tmp=allinone[:index]+"begin{pmatrix}"+allinone[index+8:]
-					#allinone=tmp
-					#index=index+14
-					#openparanthesis=0     #this track the number of "{" that are open
-					#pass
-					#while index<len(allinone):						
-						#if (allinone[index]=='\\' and allinone[index+1:index+3]=="cr"):
-							#tmp=allinone[:index]+"\\\\"+allinone[index+3:]
-							#allinone=tmp
-						#if (allinone[index]=="{"):
-							#openparanthesis+=1
-						#if (allinone[index]=="}"):
-							#openparanthesis-=1
-							#if openparanthesis==-1:
-								#tmp=allinone[:index]+"\end{pmatrix}"+allinone[index+1:]
-								#allinone=tmp
-								#break
-						#if (index>=len(allinone)):
-							#break
-						#index=index+1
 				with codecs.open(join("./equations",texfile), 'w', encoding ='utf_8' ) as file:		#use a instead of w to append
 					file.write(allinone)
 									
