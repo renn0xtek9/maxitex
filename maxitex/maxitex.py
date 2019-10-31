@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import maxitex
 import sys, getopt,codecs
 import os.path
 from os import listdir
@@ -231,11 +232,11 @@ def launch_maxima(infile):
 		sys.exit(2)
 
 
-def main(argv):
+def main():
 	infile = ''
 	outfile = ''
 	try:
-		opts, args = getopt.getopt(argv,"hi:n:",["errorcode","input=","name="])
+		opts, args = getopt.getopt(sys.argv[1:],"hi:n:",["errorcode","input=","name="])
 	except getopt.GetoptError:
 		usage
 		sys.exit(1)
@@ -266,9 +267,6 @@ def main(argv):
 	if (os.path.isfile(str(outfile+".pdf"))):	#Check that the pdf has been created
 		os.system("/usr/bin/okular "+str(outfile+".pdf & bg"))	#View the result via okular 
 		
-
-if __name__ == "__main__":
-        main(sys.argv[1:])
 	
 
 #*********************************************Unit tests

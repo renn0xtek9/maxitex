@@ -18,7 +18,7 @@ setup(name='Maxitex',
       install_requires=[''],
       entry_points = {
 	      'console_scripts': [
-		      'maximaTex=maxitex.maxitex:__main__'
+		      'maximaTex=maxitex.maxitex:main'
 		      ],
 	      },
      )
