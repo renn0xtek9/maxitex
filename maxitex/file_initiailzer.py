@@ -1,3 +1,4 @@
+import codecs
 def create_header(path):
     content=[
     '\documentclass[a4paper,10pt]{article}',

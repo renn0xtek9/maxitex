@@ -11,7 +11,9 @@ import codecs
 import re
 from bcolors import bcolors
 from maxitex import file_initiailzer
-from maxitex import maxitexparser
+from maxitex.file_initiailzer import create_footer
+from maxitex.file_initiailzer import create_header
+from maxitex.maxitexparser import maxitexparser
 
 
 def usage():
@@ -19,6 +21,8 @@ def usage():
     print(bcolors.LightGreen + "\tWhere:")
     print(bcolors.LightPurple + "\t-i|--input"+bcolors.LightCyan+"\tinput file")
     print(bcolors.LightPurple + "\t-n|--name"+bcolors.LightCyan+"\tname of the latex")
+    print(bcolors.LightPurple + "\t--init"+bcolors.LightCyan+"\tcreate heder and footer file")
+    print(bcolors.LightPurple + "\t--view"+bcolors.LightCyan+"\tview the pdf ones it is produce")
     print(bcolors.LightGreen + "\n\n\tDescription:")
     print(bcolors.LightCyan + "\tExecute a maxima script and dress a latex document automatically out of it")
 
@@ -85,7 +89,7 @@ def main():
     viewoutput = False
     should_intialize_header_and_footer = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hi:n:", ["errorcode", "input=", "name="])
+        opts, args = getopt.getopt(sys.argv[1:], "hvi:n:", ["errorcode","view","init", "input=", "name="])
     except getopt.GetoptError:
         usage
         sys.exit(1)
@@ -96,7 +100,7 @@ def main():
         if opt == '--errorcode':
             errorlist()
             sys.exit()
-        elif opt in ("--init"):
+        elif opt == "--init":
             should_intialize_header_and_footer = True
         elif opt in ("-i", "--input"):
             infile = arg
@@ -110,14 +114,15 @@ def main():
         sys.exit(5)
 
     if (not os.path.isfile(infile)):
-        print(bcolors.LighrRed+"WANRING file {} not found".format(infile))
+        print(bcolors.LightRed+"WANRING file {} not found".format(infile))
         sys.exit(2)
 
+    projectdirectory = Path(infile).parent
     if should_intialize_header_and_footer:
+        print("will initialize")
         intialize_files(projectdirectory)
 
     launch_maxima(infile)
-    projectdirectory = Path(infile).parent
 
     p = maxitexparser(projectdirectory)
     p.proceed(infile, outfile)
