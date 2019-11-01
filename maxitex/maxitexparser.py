@@ -1,4 +1,9 @@
 import os.path
+from bcolors import bcolors
+import codecs
+from os import listdir
+from os.path import isfile, join
+import re
 
 
 class maxitexparser:
