@@ -14,7 +14,8 @@ from maxitex import file_initiailzer
 from maxitex.file_initiailzer import create_footer
 from maxitex.file_initiailzer import create_header
 from maxitex.maxitexparser import maxitexparser
-
+from maxitex.pdfcreator import PdfCreator
+from maxitex.maxima_runner import MaximaRunnner
 
 def usage():
     print(bcolors.LightRed + sys.argv[0] + bcolors.LightPurple + '[-h -v --errocode -i --input -n --name]' + bcolors.NC)
@@ -49,6 +50,8 @@ def errorlist():
 def create_pdf(path, outfile):
     if (os.path.isfile(str(outfile+".tex"))):  # Check that the .tex file has been created after parsing operations
         os.system("pdflatex "+str(outfile+".tex"))
+        os.system("mkdir -p build && rm -rf build/* && cp {} ./build/".format(str(outfile+".tex")))
+        os.chdir("build")
     else:
         errcode = 4
         print(bcolors.LightRed+"Exit error code "+str(4)+": no tex file found: "+str(outfile+".tex")+bcolors.NC)
@@ -68,19 +71,8 @@ def create_pdf(path, outfile):
         os.system("pdflatex "+str(outfile+".tex"))
 
 
-def launch_maxima(infile):
-    if (os.path.isfile(infile) == True):
-        os.system("maxima -b "+str(infile))  # Execute le script maxima
-    else:
-        errcode = 2
-        print(bcolors.LightRed+"Exit error code "+str(2)+": input file" +
-              infile+"not found in"+str(os.getcwd())+bcolors.NC)
-        sys.exit(2)
 
-
-def intialize_files(path):
-    create_footer(os.path.join(path, "footer_maximatex.tex"))
-    create_header(os.path.join("header_maximatex.tex"))
+    
 
 
 def main():
@@ -88,6 +80,7 @@ def main():
     outfile = ''
     viewoutput = False
     should_intialize_header_and_footer = False
+    projectdirectory = os.getcwd()
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hvi:n:", ["errorcode","view","init", "input=", "name="])
     except getopt.GetoptError:
@@ -103,30 +96,25 @@ def main():
         elif opt == "--init":
             should_intialize_header_and_footer = True
         elif opt in ("-i", "--input"):
-            infile = arg
+            infile = os.path.join(projectdirectory,arg)
         elif opt in ("-n", "--name"):
             outfile = arg
         elif opt in ("-v", "--view"):
             viewoutput = True
 
-    if len(outfile) == 0:
-        print(bcolors.LightRed+"Exit error code "+str(5)+": No output file name specified"+bcolors.NC)
-        sys.exit(5)
-
-    if (not os.path.isfile(infile)):
-        print(bcolors.LightRed+"WANRING file {} not found".format(infile))
-        sys.exit(2)
-
-    projectdirectory = Path(infile).parent
+    
+    runner=MaximaRunnner(infile)
+    runner.Run()    
+    pdc=PdfCreator(projectdirectory,infile,outfile)
     if should_intialize_header_and_footer:
-        print("will initialize")
-        intialize_files(projectdirectory)
+        pdc.InitializeHeaderAndFooter()
+    pdc.CreatePdfFromMaximaScript()
+    
 
-    launch_maxima(infile)
-
-    p = maxitexparser(projectdirectory)
-    p.proceed(infile, outfile)
-    create_pdf(projectdirectory, outfile)
+    #p = maxitexparser(projectdirectory)
+        
+    #p.proceed(infile, outfile)
+    #create_pdf(projectdirectory, outfile)
     if (os.path.isfile(str(outfile+".pdf")) and viewoutput):  # Check that the pdf has been created
         os.system("/usr/bin/xdg-open "+str(outfile+".pdf & bg"))  # View the result via okular
 

@@ -6,19 +6,11 @@ from os.path import isfile, join
 import re
 
 
-class maxitexparser:
-    latexcontent = ['']
-    latexabstract = ['']
-    latextitle = ''
-    latexauthor = ''
-    abstract = False
-    nomenclature = False
-    title = False
-    author = False
-
-    def __init__(self, directory):
-        self.headerfile = os.path.join(directory, "header_maximatex.tex")
-        self.footerfile = os.path.join(directory, "footer_maximatex.tex")
+class maxitexparser:    
+    def __init__(self, directory,builddirectory):
+        self.builddirectory=builddirectory
+        self.headerfile = os.path.join(self.builddirectory, "header_maximatex.tex")
+        self.footerfile = os.path.join(self.builddirectory, "footer_maximatex.tex")
         for f in [self.headerfile, self.footerfile]:
             if os.path.isfile(f) == False:
                 print("Error: File {} not found".format(f))
@@ -30,18 +22,18 @@ class maxitexparser:
         self.nomenclature = False
         self.title = False
 
-    def _writeheader(self, outfile):
+    def _writeheader(self, texfile):
         with open(self.headerfile) as f:  # This conserve the \n at en of lines
             content = f.readlines()
-        with codecs.open(str(outfile+".tex"), 'w', encoding='utf_8') as file:
+        with codecs.open(texfile, 'w', encoding='utf_8') as file:
             for i in range(0, len(content)):
                 file.write(content[i])
             file.write("\n")
 
-    def _writefooter(self, outfile):
+    def _writefooter(self, texfile):
         with open(self.footerfile) as f:  # This conserve the \n at en of lines
             content = f.readlines()
-        with codecs.open(str(outfile+".tex"), 'a', encoding='utf_8') as file:
+        with codecs.open(texfile, 'a', encoding='utf_8') as file:
             for i in range(0, len(content)):
                 file.write(content[i])
 
@@ -93,8 +85,8 @@ class maxitexparser:
 
         print (bcolors.Yellow+"[DEBUG] File parsed"+bcolors.NC)
 
-    def _writefile(self, outfile):
-        with codecs.open(str(outfile+".tex"), 'a', encoding='utf_8') as file:
+    def _writefile(self, texfile):
+        with codecs.open(texfile, 'a', encoding='utf_8') as file:
             file.write(str("\\begin{document}\n"))
             if (self.author):
                 file.write(str("\\author{"+self.latexauthor+"}\n"))
@@ -113,7 +105,7 @@ class maxitexparser:
             for it in range(0, len(self.latexcontent)):
                 file.write(self.latexcontent[it])
 
-    def SwitchFrom_pmatrix_to_beginmatrix(self):
+    def __SwitchFrom_pmatrix_to_beginmatrix(self):
         #\pmatrix{a&b\cr c&d\cr }=\pmatrix{e&f\cr g&h\cr }
         #\begin{pmatrix}a&b\cr c&d\cr }=\pmatrix{e&f\cr g&h\cr }
         equationsfiles = [f for f in listdir("./equations") if isfile(join("./equations", f))]
@@ -158,9 +150,9 @@ class maxitexparser:
                 with codecs.open(join("./equations", texfile), 'w', encoding='utf_8') as file:  # use a instead of w to append
                     file.write(allinone)
 
-    def proceed(self, infile, outfile):
-        self._parsemaximafile(infile)
-        self._writeheader(outfile)
-        self._writefile(outfile)
-        self._writefooter(outfile)
-        self.SwitchFrom_pmatrix_to_beginmatrix()
+    def GenerateTexFile(self, maximascript, texfile):
+        self._parsemaximafile(maximascript)
+        self._writeheader(texfile)
+        self._writefile(texfile)
+        self._writefooter(texfile)
+        self.__SwitchFrom_pmatrix_to_beginmatrix()
