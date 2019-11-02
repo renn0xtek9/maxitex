@@ -16,7 +16,9 @@ class PdfCreator():
         os.system("rm -rf ./build/graphs && cp -r graphs ./build/")
         os.chdir(self.BuildDirectory())
         self.CreateTexFileFromMaximaScript()
-        self.GeneratePdfFromTexFile()                        
+        self.GeneratePdfFromTexFile()    
+        if (os.path.isfile(self.pdfbasename+".pdf")):
+            os.system("mv "+self.pdfbasename+".pdf"+" ..")        
         
     def GeneratePdfFromTexFile(self):
         if (os.path.isfile(str(self.pdfbasename+".tex"))):  # Check that the .tex file has been created after parsing operations
@@ -36,6 +38,7 @@ class PdfCreator():
             os.system("/usr/bin/makeindex -s "+str(self.pdfbasename+".ist")+" -t " +
                     str(self.pdfbasename+".alg")+" -o "+str(self.pdfbasename+".acr")+" "+str(self.pdfbasename+".acn"))
             os.system("pdflatex "+str(self.pdfbasename+".tex"))
+        return True
         
     def CreateTexFileFromMaximaScript(self):
         parser=maxitexparser(self.projectdirectory,self.BuildDirectory())

@@ -47,28 +47,6 @@ def errorlist():
     print("255             |Exit returning information (help, version, list of error codes etc)"+bcolors.NC)
 
 
-def create_pdf(path, outfile):
-    if (os.path.isfile(str(outfile+".tex"))):  # Check that the .tex file has been created after parsing operations
-        os.system("pdflatex "+str(outfile+".tex"))
-        os.system("mkdir -p build && rm -rf build/* && cp {} ./build/".format(str(outfile+".tex")))
-        os.chdir("build")
-    else:
-        errcode = 4
-        print(bcolors.LightRed+"Exit error code "+str(4)+": no tex file found: "+str(outfile+".tex")+bcolors.NC)
-        sys.exit(4)
-    if (os.path.isfile(str(outfile+".bcf"))):  # Check that the .bcf file has been created before proceeding bilbiography
-        os.system("/usr/bin/biber "+str(outfile+".bcf"))  # Proceed bibliography via biber
-    if (os.path.isfile(str(outfile+".idx"))):  # Check that the .idx file has been created before proceeding index
-        # Proceed index file (input and output are meant to be the same file) via makeindex
-        os.system("/usr/bin/makeindex "+str(outfile+".idx"))
-        if (os.path.isfile(str(outfile+".nlo"))):  # Check that the nlo file has been created before proceeding nomenclature
-            os.system("/usr/bin/makeindex " + outfile+".nlo"+" -s nomencl.ist -o " +
-                      outfile+".nls")  # Proceed nomenclature via makeindex
-        os.system("/usr/bin/makeindex -s "+str(outfile+".ist")+" -t " +
-                  str(outfile+".glg")+" -o "+str(outfile+".gls")+" "+str(outfile+".glo"))
-        os.system("/usr/bin/makeindex -s "+str(outfile+".ist")+" -t " +
-                  str(outfile+".alg")+" -o "+str(outfile+".acr")+" "+str(outfile+".acn"))
-        os.system("pdflatex "+str(outfile+".tex"))
 
 
 
@@ -110,11 +88,6 @@ def main():
         pdc.InitializeHeaderAndFooter()
     pdc.CreatePdfFromMaximaScript()
     
-
-    #p = maxitexparser(projectdirectory)
-        
-    #p.proceed(infile, outfile)
-    #create_pdf(projectdirectory, outfile)
     if (os.path.isfile(str(outfile+".pdf")) and viewoutput):  # Check that the pdf has been created
         os.system("/usr/bin/xdg-open "+str(outfile+".pdf & bg"))  # View the result via okular
 
@@ -168,7 +141,7 @@ def test_proceed_default_create_tex():
     if (os.path.isfile("maxitex_test/default.tex")):
         os.remove("maxitex_test/default.tex")
     p = maxitexparser()
-    p.proceed("maxitex_test/default.mac", "maxitex_test/default")
+    p.GenerateTexFile("maxitex_test/default.mac", "maxitex_test/default")
     import os.path
     assert (os.path.isfile("maxitex_test/default.tex") == True)
 
@@ -179,7 +152,7 @@ def test_proceed_default_create_pdf():
     if (os.path.isfile("maxitex_test/default.tex")):
         os.remove("maxitex_test/default.tex")
     p = maxitexparser()
-    p.proceed("maxitex_test/default.mac", "maxitex_test/default")
+    p.GenerateTexFile("maxitex_test/default.mac", "maxitex_test/default")
     create_pdf("maxitex_test/default")
     import os.path
     assert (os.path.isfile("maxitex_test/default.pdf") == True)
