@@ -4,18 +4,19 @@ import codecs
 from os import listdir
 from os.path import isfile, join
 import re
+import sys
+from maxitex.file_initiailzer import create_footer, create_header
 
 
-class maxitexparser:    
-    def __init__(self, directory,builddirectory):
-        self.builddirectory=builddirectory
-        self.headerfile = os.path.join(self.builddirectory, "header_maximatex.tex")
-        self.footerfile = os.path.join(self.builddirectory, "footer_maximatex.tex")
+class MaximaTexParser:
+    def __init__(self,  projectdirectory, maximascript, pdfbasename):
+        self.texfile = str(pdfbasename+".tex")
+        self.projectdirectory = projectdirectory
+        self.maximascript = maximascript
+        self.CreateHeaderAndFooterIfMissing()
         for f in [self.headerfile, self.footerfile]:
             if os.path.isfile(f) == False:
-                print("Error: File {} not found".format(f))
-                sys.exit(0)
-
+                raise FileNotFoundError("File {} not found".format(f))
         self.latexcontent = []
         self.latexabstract = []
         self.abstract = False
@@ -54,7 +55,7 @@ class maxitexparser:
             if (content[i][:8] == ":LATEX*/"):
                 inlatex = False
             if (content[i][:11] == "/*ABSTRACT:"):
-                print (bcolors.Yellow+"[DEBUG] We are in abstract section"+bcolors.NC)
+                print(bcolors.Yellow+"[DEBUG] We are in abstract section"+bcolors.NC)
                 self.abstract = True
                 inabstract = True
                 continue
@@ -83,7 +84,7 @@ class maxitexparser:
             if (inabstract):
                 self.latexabstract.append(str(content[i]))
 
-        print (bcolors.Yellow+"[DEBUG] File parsed"+bcolors.NC)
+        print(bcolors.Yellow+"[DEBUG] File parsed"+bcolors.NC)
 
     def _writefile(self, texfile):
         with codecs.open(texfile, 'a', encoding='utf_8') as file:
@@ -105,9 +106,9 @@ class maxitexparser:
             for it in range(0, len(self.latexcontent)):
                 file.write(self.latexcontent[it])
 
-    def __SwitchFrom_pmatrix_to_beginmatrix(self):
-        #\pmatrix{a&b\cr c&d\cr }=\pmatrix{e&f\cr g&h\cr }
-        #\begin{pmatrix}a&b\cr c&d\cr }=\pmatrix{e&f\cr g&h\cr }
+    def _switchFrom_pmatrix_to_beginmatrix(self):
+        # \pmatrix{a&b\cr c&d\cr }=\pmatrix{e&f\cr g&h\cr }
+        # \begin{pmatrix}a&b\cr c&d\cr }=\pmatrix{e&f\cr g&h\cr }
         equationsfiles = [f for f in listdir("./equations") if isfile(join("./equations", f))]
         print(equationsfiles)
         for texfile in equationsfiles:
@@ -150,9 +151,26 @@ class maxitexparser:
                 with codecs.open(join("./equations", texfile), 'w', encoding='utf_8') as file:  # use a instead of w to append
                     file.write(allinone)
 
-    def GenerateTexFile(self, maximascript, texfile):
-        self._parsemaximafile(maximascript)
-        self._writeheader(texfile)
-        self._writefile(texfile)
-        self._writefooter(texfile)
-        self.__SwitchFrom_pmatrix_to_beginmatrix()
+    def GenerateTexFile(self):
+        self.CreateBuildDirectory()
+        self._parsemaximafile(self.maximascript,)
+        self._writeheader(self.texfile)
+        self._writefile(self.texfile)
+        self._writefooter(self.texfile)
+        self._switchFrom_pmatrix_to_beginmatrix()
+
+    def BuildDirectory(self):
+        return os.path.join(self.projectdirectory, "build")
+
+    def CreateBuildDirectory(self):
+        os.system("mkdir -p "+self.BuildDirectory())
+
+    def CreateHeaderAndFooterIfMissing(self):
+        self.headerfile = os.path.join(self.BuildDirectory(), "header_maximatex.tex")
+        self.footerfile = os.path.join(self.BuildDirectory(), "footer_maximatex.tex")
+        if (not os.path.isfile(self.footerfile)):
+            self.CreateBuildDirectory()
+            create_footer(self.footerfile)
+        if (not os.path.isfile(self.headerfile)):
+            self.CreateBuildDirectory()
+            create_header(self.headerfile)
