@@ -13,7 +13,11 @@ class PdfCreator():
         self.CreateBuildDirectory()
         os.system("rm -rf ./build/equations && cp -r equations ./build/")
         os.system("rm -rf ./build/graphs && cp -r graphs ./build/")
+        os.system("rm -rf ./build/figures && cp -r figures ./build")
         os.system("cp "+self.pdfbasename+".tex ./build")
+        os.system("cp library.bib ./build")
+        os.system("cp footer_maximatex.tex ./build")
+        os.system("cp header_maximatex.tex ./build")
 
     def CreatePdfFromMaximaScript(self):
         self._CopyFilesToBuildFolder()
