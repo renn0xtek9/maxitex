@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import unittest
 import os
+import sys
 from maxitexparser import maxitexparser
 
 
@@ -8,7 +9,8 @@ class TestMaxitexParser(unittest.TestCase):
     def setUp(self):
         self.projectdirectory = os.path.join(os.getcwd(), "../maxitex_text/")
         self.buildirectory = os.path.join(self.projectdirectory, "build")
-        self.p = maxitexparser(self.projectdirectory, self.buildirectory)
+        #self.p = maxitexparser(self.projectdirectory, self.buildirectory)
+        self.p = maxitexparser(self.projectdirectory)
         pass
 
     def test_detectauthor(self):
@@ -50,7 +52,8 @@ class TestMaxitexParser(unittest.TestCase):
         if (os.path.isfile("maxitex_test/default.tex")):
             os.remove("maxitex_test/default.tex")
         p = maxitexparser()
-        self.p.GenerateTexFile("maxitex_test/default.mac", "maxitex_test/default")
+        self.p.GenerateTexFile(
+            "maxitex_test/default.mac", "maxitex_test/default")
         import os.path
         assert (os.path.isfile("maxitex_test/default.tex") == True)
 

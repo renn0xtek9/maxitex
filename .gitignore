@@ -1,2 +1,15 @@
 */__pycache__/*
 .kdev4/*
+dist/*
+maxitex_test/*.aux
+maxitex_test/*.bcf
+maxitex_test/*.blg
+maxitex_test/*.idx
+maxitex_test/*.ilg
+maxitex_test/*.ind
+maxitex_test/*.log
+maxitex_test/*.nlo
+maxitex_test/*.nls
+maxitex_test/*.out
+maxitex_test/*.pdf
+maxitex_test/*.tex
