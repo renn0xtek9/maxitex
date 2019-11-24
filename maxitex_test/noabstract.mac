@@ -1,0 +1,36 @@
+/*******************************************************************************************
+Un script maxima avec Latex embarque par defaut
+21.07.2016	
+*******************************************************************************************/
+/*TITLE:Script par default (valide) de maxitex*/
+/*AUTHOR:Maxime Haselbauer*/
+load("/home/max/Documents/Outils/Maximatools/texputs.mac")$
+texput(Delta,"\\Delta")$
+system("mkdir -p equations")$
+system("rm ./equations/*.tex")$
+/****************************** Literature 
+[1] Mon chemin de croix - Le curee de camaret
+*/
+/******************************Nomenclature*/
+/*LATEX: Nomenclature
+\nomenclature{$\alpha$}{Void fraction}
+:LATEX*/
+/*-------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------
+---
+---Premiere partie
+---
+---------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------*/
+/*LATEX:Premiere partie
+\section{Premiere partie}
+Equation de definition de $\Delta$
+\begin{equation}
+\input{equations/eqDelta.tex}
+\label{eq:eqDelta}
+\end{equation}
+Equation \ref{eq:eqDelta} donne la definition de x
+:LATEX*/
+eqDelta:Delta=2;
+tex(eqDelta,"equations/eqDelta.tex");
+
